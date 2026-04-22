@@ -614,32 +614,45 @@
     statusDot.className = 'status-dot loading';
     tonPriceDisplay.textContent = t.loading;
 
-    try {
-      const res = await fetch(
-        'https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd,eur',
-        { signal: AbortSignal.timeout(8000) }
-      );
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      tonPriceUsd = data['the-open-network'].usd;
-      tonPriceEur = data['the-open-network'].eur;
-
+    const onSuccess = () => {
       statusDot.className = 'status-dot live';
       updateTonPriceDisplay();
-
       lastUpdated.textContent = new Date().toLocaleTimeString(
         lang === 'de' ? 'de-DE' : 'en-US',
         { hour: '2-digit', minute: '2-digit', second: '2-digit' }
       );
-
-      // trigger recompute after price arrives
-      if (starsInput.value)        compute('stars');
+      if (starsInput.value)         compute('stars');
       else if (currencyInput.value) compute('currency');
       else if (tonInput.value)      compute('ton');
+    };
 
-    } catch {
-      statusDot.className = 'status-dot error';
-      tonPriceDisplay.textContent = t.loadError;
+    // Primary: Binance (no API key required)
+    try {
+      const [tonRes, eurRes] = await Promise.all([
+        fetch('https://api.binance.com/api/v3/ticker/price?symbol=TONUSDT', { signal: AbortSignal.timeout(6000) }),
+        fetch('https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT', { signal: AbortSignal.timeout(6000) }),
+      ]);
+      if (!tonRes.ok || !eurRes.ok) throw new Error('Binance error');
+      const [tonData, eurData] = await Promise.all([tonRes.json(), eurRes.json()]);
+      tonPriceUsd = parseFloat(tonData.price);
+      tonPriceEur = tonPriceUsd / parseFloat(eurData.price); // EURUSDT = USD per 1 EUR
+      onSuccess();
+      return;
+    } catch { /* fall through to backup */ }
+
+    // Fallback: CoinCap
+    try {
+      const res = await fetch('https://api.coincap.io/v2/assets/the-open-network', { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) throw new Error('CoinCap error');
+      const data = await res.json();
+      tonPriceUsd = parseFloat(data.data.priceUsd);
+      tonPriceEur = tonPriceUsd * 0.92; // approximate EUR fallback
+      onSuccess();
+      return;
+    } catch { /* fall through to error */ }
+
+    statusDot.className = 'status-dot error';
+    tonPriceDisplay.textContent = t.loadError;
     }
   }
 
