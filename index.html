@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Telegram Stars Rechner</title>
+  <title>Telegram Stars Calculator</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -25,383 +21,532 @@
     .card {
       background: #1c1c26;
       border-radius: 20px;
-      padding: 36px 32px;
+      padding: 32px 28px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
 
+    /* Header */
     .header {
       text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .header .icon {
-      font-size: 48px;
-      display: block;
-      margin-bottom: 12px;
-    }
-
-    .header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-
-    .header p {
-      font-size: 13px;
-      color: #8b8b9e;
-    }
-
-    .input-group {
       margin-bottom: 24px;
     }
+    .header .icon { font-size: 44px; display: block; margin-bottom: 10px; }
+    .header h1 { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+    .header p { font-size: 13px; color: #8b8b9e; }
 
-    .input-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #8b8b9e;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .input-wrapper {
-      position: relative;
+    /* Currency toggle */
+    .currency-toggle {
       display: flex;
-      align-items: center;
+      background: #22222e;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+      gap: 4px;
     }
-
-    .input-icon {
-      position: absolute;
-      left: 14px;
-      font-size: 20px;
-      pointer-events: none;
-    }
-
-    input[type="number"] {
-      width: 100%;
-      background: #2a2a38;
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 14px 16px 14px 44px;
-      font-size: 20px;
-      font-weight: 600;
-      color: #fff;
-      outline: none;
-      transition: border-color 0.2s;
-      -moz-appearance: textfield;
-    }
-
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-    }
-
-    input[type="number"]:focus {
-      border-color: #5b9cf6;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-      color: #3a3a50;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: "";
+    .toggle-btn {
       flex: 1;
-      height: 1px;
-      background: #2a2a38;
+      background: none;
+      border: none;
+      color: #6b6b84;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
     }
-
-    .divider-icon {
-      font-size: 16px;
+    .toggle-btn.active {
+      background: #2e5ab0;
+      color: #fff;
     }
+    .toggle-btn:hover:not(.active) { color: #a0a0bc; }
 
-    .results {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .result-card {
-      background: #2a2a38;
+    /* Input cards */
+    .input-card {
+      background: #22222e;
+      border: 2px solid transparent;
       border-radius: 14px;
-      padding: 16px 18px;
+      padding: 13px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
+      transition: border-color 0.18s;
     }
+    .input-card:focus-within { border-color: #3a6bc8; }
 
-    .result-card.highlight {
-      background: linear-gradient(135deg, #1a3a6e, #1e3f7a);
-      border: 1px solid #2e5ab0;
-    }
-
-    .result-left {
+    .input-card-left {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-shrink: 0;
     }
-
-    .result-emoji {
-      font-size: 24px;
-      line-height: 1;
-    }
-
-    .result-label {
+    .input-card-emoji { font-size: 22px; line-height: 1; }
+    .input-card-label {
       font-size: 12px;
-      color: #8b8b9e;
-      font-weight: 500;
+      font-weight: 600;
+      color: #6b6b84;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      white-space: nowrap;
     }
 
-    .result-card.highlight .result-label {
-      color: #7aaaf5;
-    }
-
-    .result-value {
+    .input-card input[type="number"] {
+      background: none;
+      border: none;
+      outline: none;
+      color: #fff;
       font-size: 20px;
       font-weight: 700;
-      color: #fff;
       text-align: right;
+      width: 100%;
+      -moz-appearance: textfield;
       font-variant-numeric: tabular-nums;
     }
+    .input-card input[type="number"]::-webkit-outer-spin-button,
+    .input-card input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .input-card input[type="number"]::placeholder { color: #3a3a50; }
 
-    .result-card.highlight .result-value {
-      color: #fff;
-      font-size: 22px;
+    /* Arrow between cards */
+    .convert-arrow {
+      text-align: center;
+      color: #3a3a50;
+      font-size: 16px;
+      padding: 5px 0;
     }
 
+    /* Rate info box */
     .rate-info {
-      margin-top: 24px;
+      margin-top: 20px;
       background: #22222e;
       border-radius: 12px;
-      padding: 14px 16px;
+      padding: 13px 15px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 7px;
     }
-
     .rate-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 12px;
     }
-
     .rate-key {
       color: #5a5a72;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
+    .rate-val { color: #6b7a99; font-weight: 600; }
+    .ton-price-row .rate-val { color: #4e9eff; }
 
-    .rate-val {
-      color: #6b7a99;
-      font-weight: 600;
-    }
-
-    .ton-price-row .rate-val {
-      color: #4e9eff;
-    }
-
+    /* Status dot */
     .status-dot {
       display: inline-block;
-      width: 6px;
-      height: 6px;
+      width: 6px; height: 6px;
       border-radius: 50%;
       background: #5a5a72;
-      margin-right: 5px;
-      vertical-align: middle;
+      flex-shrink: 0;
     }
+    .status-dot.live { background: #4caf89; box-shadow: 0 0 6px #4caf89; }
+    .status-dot.loading { background: #f5a623; animation: pulse 1s infinite; }
+    .status-dot.error { background: #e05050; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .status-dot.live {
-      background: #4caf89;
-      box-shadow: 0 0 6px #4caf89;
+    /* Info button */
+    .info-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      border: 1.5px solid #4a4a64;
+      background: none;
+      color: #6b7a99;
+      font-size: 9px;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
     }
+    .info-btn:hover { border-color: #7aaaf5; color: #7aaaf5; }
 
-    .status-dot.loading {
-      background: #f5a623;
-      animation: pulse 1s infinite;
-    }
-
-    .status-dot.error {
-      background: #e05050;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
+    /* Footer */
     .footer {
-      margin-top: 20px;
+      margin-top: 16px;
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
       color: #3a3a50;
+      line-height: 1.5;
     }
 
-    .zero-state {
-      color: #3a3a50;
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 100;
     }
+    .modal-overlay.visible { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: #1c1c26;
+      border-radius: 16px;
+      padding: 24px 22px;
+      max-width: 360px;
+      width: 100%;
+      position: relative;
+      border: 1px solid #2a2a3e;
+      transform: translateY(8px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.visible .modal { transform: translateY(0); }
+
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: #2a2a38;
+      border: none;
+      color: #6b6b84;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { color: #fff; }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 14px;
+      padding-right: 28px;
+    }
+    .modal-body { font-size: 13px; color: #a0a0bc; line-height: 1.6; }
+    .modal-body strong { color: #fff; }
+    .modal-body h3 { font-size: 12px; font-weight: 700; color: #7aaaf5; margin-top: 14px; }
+    .modal-body p { margin-top: 6px; }
+    .modal-body p:first-child { margin-top: 0; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="header">
-      <span class="icon">⭐</span>
-      <h1>Telegram Stars Rechner</h1>
-      <p>Konvertiere Stars in Dollar &amp; TON</p>
+<div class="card">
+  <div class="header">
+    <span class="icon">⭐</span>
+    <h1 id="h-title"></h1>
+    <p id="h-subtitle"></p>
+  </div>
+
+  <div class="currency-toggle">
+    <button class="toggle-btn active" data-currency="USD">USD $</button>
+    <button class="toggle-btn" data-currency="EUR">EUR €</button>
+  </div>
+
+  <div class="input-card">
+    <div class="input-card-left">
+      <span class="input-card-emoji">⭐</span>
+      <span class="input-card-label" id="label-stars"></span>
     </div>
+    <input type="number" id="stars-input" placeholder="0" min="0" autofocus />
+  </div>
 
-    <div class="input-group">
-      <label class="input-label" for="stars-input">Anzahl Stars</label>
-      <div class="input-wrapper">
-        <span class="input-icon">⭐</span>
-        <input
-          type="number"
-          id="stars-input"
-          placeholder="0"
-          min="0"
-          autofocus
-        />
-      </div>
+  <div class="convert-arrow">⇅</div>
+
+  <div class="input-card">
+    <div class="input-card-left">
+      <span class="input-card-emoji" id="currency-emoji">💵</span>
+      <span class="input-card-label" id="label-currency">USD</span>
     </div>
+    <input type="number" id="currency-input" placeholder="0.00" min="0" step="0.01" />
+  </div>
 
-    <div class="divider">
-      <span class="divider-icon">↓</span>
+  <div class="convert-arrow">⇅</div>
+
+  <div class="input-card">
+    <div class="input-card-left">
+      <span class="input-card-emoji">💎</span>
+      <span class="input-card-label" id="label-ton"></span>
     </div>
+    <input type="number" id="ton-input" placeholder="0.000" min="0" step="0.001" />
+  </div>
 
-    <div class="results">
-      <div class="result-card highlight">
-        <div class="result-left">
-          <span class="result-emoji">💵</span>
-          <span class="result-label">US-Dollar</span>
-        </div>
-        <span class="result-value zero-state" id="usd-value">$0.00</span>
-      </div>
-
-      <div class="result-card">
-        <div class="result-left">
-          <span class="result-emoji">💎</span>
-          <span class="result-label">TON Coins</span>
-        </div>
-        <span class="result-value zero-state" id="ton-value">0.000 TON</span>
-      </div>
+  <div class="rate-info">
+    <div class="rate-row ton-price-row">
+      <span class="rate-key">
+        <span class="status-dot loading" id="status-dot"></span>
+        <span id="label-ton-price"></span>
+      </span>
+      <span class="rate-val" id="ton-price-display"></span>
     </div>
-
-    <div class="rate-info">
-      <div class="rate-row ton-price-row">
-        <span class="rate-key">
-          <span class="status-dot loading" id="status-dot"></span>TON Preis
-        </span>
-        <span class="rate-val" id="ton-price-display">wird geladen…</span>
-      </div>
-      <div class="rate-row">
-        <span class="rate-key">Stars-Kurs</span>
-        <span class="rate-val">1 Star = $0.013</span>
-      </div>
-      <div class="rate-row">
-        <span class="rate-key">Letzte Aktualisierung</span>
-        <span class="rate-val" id="last-updated">—</span>
-      </div>
+    <div class="rate-row">
+      <span class="rate-key">
+        <span id="label-stars-rate"></span>
+        <button class="info-btn" id="info-btn" aria-label="Info">!</button>
+      </span>
+      <span class="rate-val">1 Star = $0.013</span>
     </div>
-
-    <div class="footer">
-      Kurs basiert auf Telegrams offiziellem Auszahlungspreis · TON-Preis live via CoinGecko
+    <div class="rate-row">
+      <span class="rate-key" id="label-updated"></span>
+      <span class="rate-val" id="last-updated">—</span>
     </div>
   </div>
 
-  <script>
-    const STARS_TO_USD = 0.013;
+  <div class="footer" id="footer"></div>
+</div>
 
-    let tonPriceUsd = null;
+<!-- Info Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
 
-    const starsInput = document.getElementById("stars-input");
-    const usdValue = document.getElementById("usd-value");
-    const tonValue = document.getElementById("ton-value");
-    const tonPriceDisplay = document.getElementById("ton-price-display");
-    const lastUpdated = document.getElementById("last-updated");
-    const statusDot = document.getElementById("status-dot");
+<script>
+  /* ── i18n ─────────────────────────────────────────────── */
+  const lang = navigator.language.startsWith('de') ? 'de' : 'en';
 
-    function formatUsd(amount) {
-      return "$" + amount.toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-    }
+  const T = {
+    de: {
+      pageTitle:    'Telegram Stars Rechner',
+      title:        'Telegram Stars Rechner',
+      subtitle:     'Stars · Dollar · Euro · TON umrechnen',
+      labelStars:   'Stars',
+      labelTon:     'TON Coins',
+      labelTonPrice:'TON Preis',
+      labelStarsRate:'Stars-Kurs',
+      labelUpdated: 'Letzte Aktualisierung',
+      loading:      'wird geladen…',
+      loadError:    'Fehler – neu laden',
+      footer:       'Stars-Kurs: offizieller Telegram-Auszahlungspreis\nTON-Preis live via CoinGecko',
+      infoTitle:    'Wie entsteht der Stars-Kurs?',
+      infoBody: `
+        <p>Telegram legt den Auszahlungspreis für Stars intern fest.
+        Creator erhalten <strong>$0.013 pro Star</strong> – das entspricht:</p>
+        <p>• 100 Stars → $1.30<br>• 1.000 Stars → $13.00<br>• 10.000 Stars → $130.00</p>
+        <h3>Warum zahlen Nutzer mehr?</h3>
+        <p>Nutzer kaufen Stars für ca. <strong>$0.018–0.02 pro Star</strong> in kleinen Paketen.
+        Die Differenz behält Telegram als Plattformgebühr.</p>
+        <h3>Ändert sich der Kurs?</h3>
+        <p>Selten. Seit der Einführung von Stars (2024) ist der Kurs stabil bei $0.013.
+        Änderungen werden von Telegram offiziell kommuniziert.</p>
+      `,
+    },
+    en: {
+      pageTitle:    'Telegram Stars Calculator',
+      title:        'Telegram Stars Calculator',
+      subtitle:     'Convert Stars · Dollars · Euros · TON',
+      labelStars:   'Stars',
+      labelTon:     'TON Coins',
+      labelTonPrice:'TON Price',
+      labelStarsRate:'Stars Rate',
+      labelUpdated: 'Last updated',
+      loading:      'loading…',
+      loadError:    'Error – reload page',
+      footer:       'Stars rate: official Telegram payout price\nTON price live via CoinGecko',
+      infoTitle:    'How is the Stars rate calculated?',
+      infoBody: `
+        <p>Telegram sets the payout price for Stars internally.
+        Creators receive <strong>$0.013 per Star</strong>, which equals:</p>
+        <p>• 100 Stars → $1.30<br>• 1,000 Stars → $13.00<br>• 10,000 Stars → $130.00</p>
+        <h3>Why do users pay more?</h3>
+        <p>Users purchase Stars at roughly <strong>$0.018–0.02 per Star</strong> in smaller bundles.
+        Telegram keeps the difference as a platform fee.</p>
+        <h3>Does the rate change?</h3>
+        <p>Rarely. Since Stars launched in 2024, the rate has been stable at $0.013.
+        Any change would be officially announced by Telegram.</p>
+      `,
+    },
+  };
 
-    function formatTon(amount) {
-      if (amount >= 1000) {
-        return amount.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " TON";
-      }
-      return amount.toLocaleString("de-DE", { minimumFractionDigits: 3, maximumFractionDigits: 4 }) + " TON";
-    }
+  const t = T[lang];
+  document.title = t.pageTitle;
+  document.documentElement.lang = lang;
 
-    function updateDisplay() {
-      const stars = parseFloat(starsInput.value) || 0;
+  document.getElementById('h-title').textContent        = t.title;
+  document.getElementById('h-subtitle').textContent     = t.subtitle;
+  document.getElementById('label-stars').textContent    = t.labelStars;
+  document.getElementById('label-ton').textContent      = t.labelTon;
+  document.getElementById('label-ton-price').textContent= t.labelTonPrice;
+  document.getElementById('label-stars-rate').textContent = t.labelStarsRate;
+  document.getElementById('label-updated').textContent  = t.labelUpdated;
+  document.getElementById('footer').textContent         = t.footer;
+  document.getElementById('modal-title').textContent    = t.infoTitle;
+  document.getElementById('ton-price-display').textContent = t.loading;
+
+  /* ── State ───────────────────────────────────────────── */
+  const STARS_TO_USD = 0.013;
+  let tonPriceUsd = null;
+  let tonPriceEur = null;
+  let currency    = 'USD';
+  let busy        = false; // prevent circular updates
+
+  /* ── Elements ────────────────────────────────────────── */
+  const starsInput      = document.getElementById('stars-input');
+  const currencyInput   = document.getElementById('currency-input');
+  const tonInput        = document.getElementById('ton-input');
+  const currencyEmoji   = document.getElementById('currency-emoji');
+  const currencyLabel   = document.getElementById('label-currency');
+  const tonPriceDisplay = document.getElementById('ton-price-display');
+  const lastUpdated     = document.getElementById('last-updated');
+  const statusDot       = document.getElementById('status-dot');
+
+  /* ── Helpers ─────────────────────────────────────────── */
+  function tonPriceInCurrency() {
+    return currency === 'USD' ? tonPriceUsd : tonPriceEur;
+  }
+
+  function usdToCurrency(usd) {
+    if (currency === 'USD') return usd;
+    if (!tonPriceUsd || !tonPriceEur) return null;
+    return usd * (tonPriceEur / tonPriceUsd);
+  }
+
+  function currencyToUsd(amount) {
+    if (currency === 'USD') return amount;
+    if (!tonPriceUsd || !tonPriceEur) return null;
+    return amount * (tonPriceUsd / tonPriceEur);
+  }
+
+  function setField(input, val) {
+    if (val === null || isNaN(val) || val === 0) { input.value = ''; return; }
+    if (input === starsInput)    input.value = parseFloat(val.toFixed(2));
+    else if (input === tonInput) input.value = parseFloat(val.toFixed(6));
+    else                         input.value = parseFloat(val.toFixed(4));
+  }
+
+  /* ── Compute ─────────────────────────────────────────── */
+  function compute(source) {
+    if (busy) return;
+    busy = true;
+
+    const stars    = parseFloat(starsInput.value)    || 0;
+    const cAmount  = parseFloat(currencyInput.value) || 0;
+    const ton      = parseFloat(tonInput.value)      || 0;
+    const tonPrice = tonPriceInCurrency();
+
+    if (source === 'stars') {
       const usd = stars * STARS_TO_USD;
+      setField(currencyInput, usdToCurrency(usd));
+      setField(tonInput, tonPrice ? usdToCurrency(usd) / tonPrice : null);
 
-      if (stars === 0) {
-        usdValue.textContent = "$0.00";
-        tonValue.textContent = "0.000 TON";
-        usdValue.classList.add("zero-state");
-        tonValue.classList.add("zero-state");
-        return;
+    } else if (source === 'currency') {
+      const usd = currencyToUsd(cAmount);
+      if (usd !== null) {
+        setField(starsInput, usd / STARS_TO_USD);
+        setField(tonInput, tonPrice ? cAmount / tonPrice : null);
       }
 
-      usdValue.classList.remove("zero-state");
-      tonValue.classList.remove("zero-state");
-
-      usdValue.textContent = formatUsd(usd);
-
-      if (tonPriceUsd) {
-        const ton = usd / tonPriceUsd;
-        tonValue.textContent = formatTon(ton);
-      } else {
-        tonValue.textContent = "—";
+    } else if (source === 'ton') {
+      if (tonPrice) {
+        const cAmt = ton * tonPrice;
+        const usd  = currencyToUsd(cAmt);
+        setField(currencyInput, cAmt);
+        if (usd !== null) setField(starsInput, usd / STARS_TO_USD);
       }
     }
 
-    async function fetchTonPrice() {
-      statusDot.className = "status-dot loading";
-      tonPriceDisplay.textContent = "wird geladen…";
+    busy = false;
+  }
 
-      try {
-        const res = await fetch(
-          "https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd",
-          { signal: AbortSignal.timeout(8000) }
-        );
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        tonPriceUsd = data["the-open-network"].usd;
-
-        tonPriceDisplay.textContent = formatUsd(tonPriceUsd);
-        statusDot.className = "status-dot live";
-
-        const now = new Date();
-        lastUpdated.textContent = now.toLocaleTimeString("de-DE", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-
-        updateDisplay();
-      } catch (err) {
-        statusDot.className = "status-dot error";
-        tonPriceDisplay.textContent = "Fehler – bitte neu laden";
-        tonValue.textContent = "—";
-      }
+  /* ── Currency switch ─────────────────────────────────── */
+  function applyCurrencyUI() {
+    if (currency === 'USD') {
+      currencyEmoji.textContent = '💵';
+      currencyLabel.textContent = 'USD';
+    } else {
+      currencyEmoji.textContent = '💶';
+      currencyLabel.textContent = 'EUR';
     }
+    updateTonPriceDisplay();
+    // recompute from whichever field has a value
+    if (starsInput.value)   compute('stars');
+    else if (tonInput.value) compute('ton');
+  }
 
-    starsInput.addEventListener("input", updateDisplay);
+  function updateTonPriceDisplay() {
+    const p = tonPriceInCurrency();
+    if (!p) return;
+    const sym = currency === 'USD' ? '$' : '€';
+    tonPriceDisplay.textContent = sym + p.toFixed(2);
+  }
 
-    fetchTonPrice();
-    setInterval(fetchTonPrice, 60_000);
-  </script>
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currency = btn.dataset.currency;
+      applyCurrencyUI();
+    });
+  });
+
+  /* ── Input listeners ─────────────────────────────────── */
+  starsInput.addEventListener('input',    () => compute('stars'));
+  currencyInput.addEventListener('input', () => compute('currency'));
+  tonInput.addEventListener('input',      () => compute('ton'));
+
+  /* ── Info modal ──────────────────────────────────────── */
+  document.getElementById('info-btn').addEventListener('click', () => {
+    document.getElementById('modal-body').innerHTML = t.infoBody;
+    document.getElementById('modal-overlay').classList.add('visible');
+  });
+  document.getElementById('modal-close').addEventListener('click', () => {
+    document.getElementById('modal-overlay').classList.remove('visible');
+  });
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget)
+      e.currentTarget.classList.remove('visible');
+  });
+
+  /* ── Fetch TON price ─────────────────────────────────── */
+  async function fetchTonPrice() {
+    statusDot.className = 'status-dot loading';
+    tonPriceDisplay.textContent = t.loading;
+
+    try {
+      const res = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd,eur',
+        { signal: AbortSignal.timeout(8000) }
+      );
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      tonPriceUsd = data['the-open-network'].usd;
+      tonPriceEur = data['the-open-network'].eur;
+
+      statusDot.className = 'status-dot live';
+      updateTonPriceDisplay();
+
+      lastUpdated.textContent = new Date().toLocaleTimeString(
+        lang === 'de' ? 'de-DE' : 'en-US',
+        { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+      );
+
+      // trigger recompute after price arrives
+      if (starsInput.value)        compute('stars');
+      else if (currencyInput.value) compute('currency');
+      else if (tonInput.value)      compute('ton');
+
+    } catch {
+      statusDot.className = 'status-dot error';
+      tonPriceDisplay.textContent = t.loadError;
+    }
+  }
+
+  fetchTonPrice();
+  setInterval(fetchTonPrice, 60_000);
+</script>
 </body>
 </html>
